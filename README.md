@@ -97,7 +97,7 @@ Pełny schemat wraz z politykami RLS znajduje się w pliku [`supabase/schema.sql
 
 ```bash
 git clone https://github.com/miloszekxk/Tracker-Nawykow
-cd tracker-nawykow
+cd Tracker-Nawykow
 npm install
 ```
 
