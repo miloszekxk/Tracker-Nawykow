@@ -13,7 +13,7 @@ export async function addHabit(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
 
-  await supabase.from('habits').insert({ name: name.trim(), streak: 0, user_id: user.id })
+  await supabase.from('habits').insert({ name: name.trim(), user_id: user.id })
 
   revalidatePath('/')
 }
