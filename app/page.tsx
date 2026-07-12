@@ -1,23 +1,38 @@
-import { supabase } from '@/lib/supabase'
-import { addHabit } from './actions'
+import { createClient } from '@/lib/supabase-server'
+import { redirect } from 'next/navigation'
+import { addHabit, signOut } from './actions'
 import HabitItem from './HabitItem'
 import { calculateStreak } from '@/lib/streak'
 
+
 export default async function Home() {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
   const { data: habits } = await supabase
     .from('habits')
     .select()
+    .eq('user_id', user.id)
     .order('id', { ascending: true })
-
 
   const { data: completions } = await supabase.from('completions').select()
 
   return (
-   <main className="w-full max-w-md sm:max-w-lg mx-auto px-4 py-6 sm:p-8">
-    <h1 className="text-2xl sm:text-3xl font-bold mb-1">Moje nawyki</h1>
-    <p className="text-slate-400 mb-6">Śledź swoje codzienne postępy</p>
+    <main className="w-full max-w-md sm:max-w-lg mx-auto px-4 py-8 sm:p-10">
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Moje nawyki</h1>
+        <form action={signOut}>
+          <button className="text-sm text-slate-400 hover:text-slate-200 transition-colors">Wyloguj</button>
+        </form>
+      </div>
+      <p className="text-slate-400 mb-6">Śledź swoje codzienne postępy</p>
 
-      <form action={addHabit} className="flex flex-col sm:flex-row gap-2 mb-8">
+      <form action={addHabit} className="flex flex-col sm:flex-row gap-2 mb-8 pb-8 border-b border-slate-800">
         <input
           type="text"
           name="name"
@@ -30,7 +45,7 @@ export default async function Home() {
         </button>
       </form>
 
-      <ul className="space-y-5">
+      <ul className="space-y-3">
         {habits?.map((habit) => {
           const habitCompletions = completions?.filter(
             (c) => c.habit_id === habit.id
