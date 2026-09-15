@@ -37,11 +37,10 @@ export async function updateHabit(id: number, name: string) {
   revalidatePath('/')
 }
 
-export async function markDone(habitId: number) {
+export async function markDone(habitId: number, date: string) {
   const supabase = await createClient()
 
-  const today = new Date().toISOString().split('T')[0]
-  const { error } = await supabase.from('completions').insert({ habit_id: habitId, date: today })
+  const { error } = await supabase.from('completions').insert({ habit_id: habitId, date })
   if (error) {
     console.log('Już odchaczone dzisiaj lub inny błąd:', error.message)
     return
@@ -49,11 +48,10 @@ export async function markDone(habitId: number) {
   revalidatePath('/')
 }
 
-export async function removeDone(habitId: number) {
+export async function removeDone(habitId: number, date: string) {
   const supabase = await createClient()
 
-  const today = new Date().toISOString().split('T')[0]
-  await supabase.from('completions').delete().eq('habit_id', habitId).eq('date', today)
+  await supabase.from('completions').delete().eq('habit_id', habitId).eq('date', date)
   revalidatePath('/')
 }
 

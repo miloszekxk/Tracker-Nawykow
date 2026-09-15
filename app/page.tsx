@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { addHabit, signOut } from './actions'
 import HabitItem from './HabitItem'
-import { calculateStreak } from '@/lib/streak'
 
 
 export default async function Home() {
@@ -53,12 +52,10 @@ export default async function Home() {
 
           const dates = habitCompletions?.map((c) => c.date) ?? []
 
-          const streak = calculateStreak(dates)
-
           return (
             <HabitItem
               key={habit.id}
-              habit={{ ...habit, streak }}
+              habit={{ ...habit, dates }}
             />
           )
         })}
