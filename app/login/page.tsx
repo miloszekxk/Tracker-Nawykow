@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [isRegistering, setIsRegistering] = useState(false)
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const supabase = createClient()
   const router = useRouter()
@@ -16,11 +17,13 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    setIsLoading(true)
 
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
       setError('Błędny email lub hasło')
+      setIsLoading(false)
       return
     }
 
@@ -31,11 +34,13 @@ export default function LoginPage() {
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    setIsLoading(true)
 
     const { error } = await supabase.auth.signUp({ email, password })
 
     if (error) {
       setError(error.message)
+      setIsLoading(false)
       return
     }
 
@@ -60,29 +65,35 @@ export default function LoginPage() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="border border-slate-700 bg-slate-900 rounded-lg p-2 outline-none focus:border-slate-500 transition-colors"
+            disabled={isLoading}
+            className="border border-slate-700 bg-slate-900 rounded-lg p-2 outline-none focus:border-slate-500 transition-colors disabled:opacity-60"
           />
           <input
             type="password"
             placeholder="Hasło"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="border border-slate-700 bg-slate-900 rounded-lg p-2 outline-none focus:border-slate-500 transition-colors"
+            disabled={isLoading}
+            className="border border-slate-700 bg-slate-900 rounded-lg p-2 outline-none focus:border-slate-500 transition-colors disabled:opacity-60"
           />
 
           {error && <p className="text-red-400 text-sm">{error}</p>}
 
           <button
             type="submit"
-            className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg p-2 font-medium transition-colors"
+            disabled={isLoading}
+            className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg p-2 font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {isRegistering ? 'Zarejestruj się' : 'Zaloguj się'}
+            {isLoading
+              ? 'Chwileczkę...'
+              : isRegistering ? 'Zarejestruj się' : 'Zaloguj się'}
           </button>
         </form>
 
         <button
           onClick={() => setIsRegistering(!isRegistering)}
-          className="text-sm text-slate-400 hover:text-slate-200 mt-4 transition-colors"
+          disabled={isLoading}
+          className="text-sm text-slate-400 hover:text-slate-200 mt-4 transition-colors disabled:opacity-60"
         >
           {isRegistering ? 'Masz już konto? Zaloguj się' : 'Nie masz konta? Zarejestruj się'}
         </button>
