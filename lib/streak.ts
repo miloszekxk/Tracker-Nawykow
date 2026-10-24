@@ -1,34 +1,20 @@
+import { getLocalDateString } from './date'
 
-function toDateString(d: Date): string {
-  return d.toISOString().split('T')[0]
-}
+// Liczy serię dni z rzędu na podstawie dat odhaczeń (YYYY-MM-DD, czas lokalny).
+// Jeśli dziś nawyk nie jest jeszcze odhaczony, seria nadal trwa i liczy się
+// od wczoraj - przerywa ją dopiero cały pominięty dzień.
+export function calculateStreak(dates: string[], now: Date = new Date()): number {
+  const done = new Set(dates)
+  const day = new Date(now.getFullYear(), now.getMonth(), now.getDate())
 
-function subtractOneDay(d: Date): Date {
-  const result = new Date(d)
-  result.setDate(result.getDate() - 1)
-  return result
-}
-
-export function calculateStreak(dates: string[]): number {
-
-  if (dates.length === 0) return 0
-
-  const sorted = [...dates].sort((a, b) => (a > b ? -1 : 1))
+  if (!done.has(getLocalDateString(day))) {
+    day.setDate(day.getDate() - 1)
+  }
 
   let streak = 0
-  
-  let expected = new Date()
-
-  for (const dateStr of sorted) {
-    const expectedStr = toDateString(expected)
-
-    if (dateStr === expectedStr) {
-      streak++
-
-      expected = subtractOneDay(expected)
-    } else {
-      break
-    }
+  while (done.has(getLocalDateString(day))) {
+    streak++
+    day.setDate(day.getDate() - 1)
   }
 
   return streak
