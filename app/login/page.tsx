@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [isRegistering, setIsRegistering] = useState(false)
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   const supabase = createClient()
@@ -17,6 +18,7 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    setInfo('')
     setIsLoading(true)
 
     const { error } = await supabase.auth.signInWithPassword({ email, password })
@@ -34,12 +36,21 @@ export default function LoginPage() {
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    setInfo('')
     setIsLoading(true)
 
-    const { error } = await supabase.auth.signUp({ email, password })
+    const { data, error } = await supabase.auth.signUp({ email, password })
 
     if (error) {
       setError(error.message)
+      setIsLoading(false)
+      return
+    }
+
+    // Brak sesji = Supabase wymaga potwierdzenia adresu e-mail
+    if (!data.session) {
+      setInfo('Konto utworzone. Sprawdź skrzynkę i kliknij link aktywacyjny, a potem się zaloguj.')
+      setIsRegistering(false)
       setIsLoading(false)
       return
     }
@@ -78,6 +89,7 @@ export default function LoginPage() {
           />
 
           {error && <p className="text-red-400 text-sm">{error}</p>}
+          {info && <p className="text-emerald-400 text-sm">{info}</p>}
 
           <button
             type="submit"
